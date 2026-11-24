@@ -323,8 +323,9 @@ function kmPerDay() {
   const pts = D.fuel.concat(D.works).filter(r => num(r.odo) && r.date).map(r => [dayNum(r.date), num(r.odo)]);
   if (D.settings.odo && D.settings.odoDate) pts.push([dayNum(D.settings.odoDate), num(D.settings.odo)]);
   if (pts.length < 2) return 0;
-  const recent = pts.filter(p => p[0] >= dayNum(todayStr()) - 365);
-  const use = recent.length >= 2 ? recent : pts;
+  // Только за последний год: старые записи с примерными датами искажают прогноз
+  const use = pts.filter(p => p[0] >= dayNum(todayStr()) - 365);
+  if (use.length < 2) return 0;
   const d0 = Math.min(...use.map(p => p[0])), d1 = Math.max(...use.map(p => p[0]));
   const o0 = Math.min(...use.map(p => p[1])), o1 = Math.max(...use.map(p => p[1]));
   return d1 - d0 >= 14 ? (o1 - o0) / (d1 - d0) : 0;
